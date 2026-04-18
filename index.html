@@ -586,6 +586,10 @@ document.getElementById('record-type')?.addEventListener('change', e => {
 });
 
 async function handleUploadRecord() {
+  if (!STATE.did) {
+    showConfirm('Register First', 'You must register your patient account on the blockchain before uploading records. Go to Settings and click "Register on Blockchain".', () => { navigateTo('settings'); });
+    return;
+  }
   const form = document.getElementById('upload-form');
   if (!form.checkValidity()) { toast('error', 'Please fill in all required fields'); return; }
   const recordType = document.getElementById('record-type').value;
@@ -601,8 +605,8 @@ async function handleUploadRecord() {
     document.getElementById('upload-success').style.display = 'none';
     document.getElementById('btn-upload').disabled = true;
     document.getElementById('step-1-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
-    const uploadResp = await apiUploadRecord(JSON.stringify(data));
-    const ipfsHash = uploadResp.hash;
+    const uploadResp = await apiUploadRecord(data);
+    const ipfsHash = uploadResp.ipfsHash;
     document.getElementById('step-2-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
     await apiAddRecord(recordType, ipfsHash);
     document.getElementById('step-3-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
