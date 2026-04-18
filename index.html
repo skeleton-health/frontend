@@ -3,467 +3,737 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Skeleton POC - Patient Dashboard</title>
+  <title>Skeleton Health - Secure Patient Data</title>
+  <meta name="description" content="Patient-controlled encrypted health records on blockchain">
+  <meta name="theme-color" content="#0066CC">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.16.0/dist/ethers.min.js"
+    }
+  }
+  </script>
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      text-align: center;
-    }
-    .header h1 { font-size: 28px; margin-bottom: 10px; }
-    .status {
-      background: rgba(255,255,255,0.2);
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      display: inline-block;
-    }
-    .content {
-      padding: 30px;
-    }
-    .section {
-      margin-bottom: 30px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 20px;
-    }
-    .section h2 {
-      color: #667eea;
-      margin-bottom: 15px;
-      font-size: 18px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 14px;
-      font-family: monospace;
-    }
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-    button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
-    button:active {
-      transform: translateY(0);
-    }
-    .success {
-      background: #10b981;
-      padding: 15px;
-      border-radius: 6px;
-      color: white;
-      margin-bottom: 15px;
-      border-left: 4px solid #059669;
-    }
-    .error {
-      background: #ef4444;
-      padding: 15px;
-      border-radius: 6px;
-      color: white;
-      margin-bottom: 15px;
-      border-left: 4px solid #dc2626;
-    }
-    .info {
-      background: #3b82f6;
-      padding: 15px;
-      border-radius: 6px;
-      color: white;
-      margin-bottom: 15px;
-      border-left: 4px solid #1d4ed8;
-    }
-    .record-item {
-      background: #f9fafb;
-      padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      border-left: 4px solid #667eea;
-    }
-    .record-item .label {
-      font-weight: 600;
-      color: #333;
-      margin-right: 10px;
-    }
-    .record-item .value {
-      color: #666;
-      font-family: monospace;
-      font-size: 12px;
-      word-break: break-all;
-    }
-    .flex { display: flex; gap: 10px; }
-    .flex > * { flex: 1; }
-    .text-small { font-size: 12px; color: #666; }
+/* DESIGN SYSTEM - Enterprise Healthcare UI */
+:root {
+  --color-primary: #0066CC;
+  --color-primary-dark: #004E9A;
+  --color-primary-light: #E8F1FB;
+  --color-secondary: #00A896;
+  --color-secondary-dark: #007A6E;
+  --color-secondary-light: #E0F7F5;
+  --color-surface: #FFFFFF;
+  --color-bg: #F4F6F9;
+  --color-sidebar-bg: #1A2332;
+  --color-sidebar-text: #C8D0DC;
+  --color-sidebar-hover: #253347;
+  --color-sidebar-active: #0066CC;
+  --color-text-primary: #1A2332;
+  --color-text-secondary: #5A6A7E;
+  --color-text-muted: #8A96A3;
+  --color-border: #DDE3EA;
+  --color-border-focus: #0066CC;
+  --color-success: #1B8A4E;
+  --color-success-bg: #EAF7EF;
+  --color-danger: #C0392B;
+  --color-danger-bg: #FDEDEC;
+  --color-info: #0066CC;
+  --color-info-bg: #E8F1FB;
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 22px;
+  --font-size-2xl: 28px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-base: 1.5;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --sidebar-width: 240px;
+  --navbar-height: 60px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --transition: 150ms ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; }
+body { font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); color: var(--color-text-primary); background: var(--color-bg); }
+button, input, textarea, select { font-family: var(--font-family); font-size: inherit; color: inherit; border: none; background: none; }
+h1 { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); }
+h2 { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); }
+h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); }
+p { margin-bottom: var(--space-3); color: var(--color-text-secondary); }
+a { color: var(--color-primary); text-decoration: none; cursor: pointer; transition: color var(--transition); }
+a:hover { color: var(--color-primary-dark); text-decoration: underline; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md); font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); cursor: pointer; transition: all var(--transition); position: relative; white-space: nowrap; user-select: none; }
+.btn:focus { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.btn-primary { background: var(--color-primary); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-danger { background: var(--color-danger); color: white; }
+.btn-danger:hover:not(:disabled) { background: #A93226; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-outline { background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text-primary); }
+.btn-outline:hover:not(:disabled) { background: var(--color-primary-light); border-color: var(--color-primary); }
+.btn-ghost { background: transparent; color: var(--color-primary); }
+.btn-ghost:hover:not(:disabled) { background: var(--color-primary-light); }
+.btn-success { background: var(--color-secondary); color: white; }
+.btn-success:hover:not(:disabled) { background: var(--color-secondary-dark); }
+.btn-full { width: 100%; }
+.btn[aria-busy="true"] { pointer-events: none; opacity: 0.75; }
+.btn[aria-busy="true"]::after { content: ''; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+.form-group { margin-bottom: var(--space-6); }
+label { display: block; font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); color: var(--color-text-primary); margin-bottom: var(--space-2); text-transform: uppercase; letter-spacing: 0.02em; }
+input, textarea, select { width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text-primary); transition: border-color var(--transition), box-shadow var(--transition); }
+input::placeholder, textarea::placeholder { color: var(--color-text-muted); }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
+input[type="password"] { font-family: 'Courier New', monospace; letter-spacing: 0.2em; }
+textarea { resize: vertical; min-height: 120px; }
+select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230066CC' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right var(--space-3) center; padding-right: 36px; }
+
+.badge { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); padding: 4px var(--space-2); border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.badge-encrypted { background: var(--color-primary-light); color: var(--color-primary); }
+.badge-success { background: var(--color-success-bg); color: var(--color-success); }
+.badge-danger { background: var(--color-danger-bg); color: var(--color-danger); }
+.badge-hipaa { background: var(--color-success-bg); color: var(--color-success); border: 1px solid var(--color-success); }
+.badge-trust { background: var(--color-primary-light); color: var(--color-primary); border: 1px solid var(--color-primary); }
+
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-6); transition: all var(--transition); }
+.card:hover { border-color: var(--color-primary); box-shadow: var(--shadow-md); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-border); }
+.card-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
+.stat-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); text-align: center; transition: all var(--transition); }
+.stat-card:hover { border-color: var(--color-primary); box-shadow: var(--shadow-md); }
+.stat-label { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: var(--space-2); }
+.stat-value { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-primary); }
+
+.card-info { background: var(--color-info-bg); border: 1px solid var(--color-info); border-left: 4px solid var(--color-info); padding: var(--space-4); border-radius: var(--radius-md); }
+.card-success { background: var(--color-success-bg); border: 1px solid var(--color-success); border-left: 4px solid var(--color-success); padding: var(--space-4); border-radius: var(--radius-md); }
+
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--color-bg); border-bottom: 2px solid var(--color-border); }
+th { padding: var(--space-4); text-align: left; font-weight: var(--font-weight-semibold); color: var(--color-text-primary); text-transform: uppercase; font-size: var(--font-size-xs); letter-spacing: 0.05em; }
+td { padding: var(--space-4); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); }
+tbody tr:hover { background: var(--color-bg); }
+
+.list-item { display: flex; justify-content: space-between; align-items: center; padding: var(--space-4); border-bottom: 1px solid var(--color-border); transition: background var(--transition); }
+.list-item:hover { background: var(--color-bg); }
+.list-item:last-child { border-bottom: none; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.15s ease; }
+.modal { background: var(--color-surface); border-radius: var(--radius-xl); box-shadow: 0 12px 48px rgba(0,0,0,0.15); padding: var(--space-8); max-width: 480px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s ease; }
+.modal-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); }
+.modal-body { color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+.modal-actions { display: flex; gap: var(--space-3); justify-content: flex-end; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(32px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+#toast-container { position: fixed; top: var(--space-5); right: var(--space-5); z-index: 3000; display: flex; flex-direction: column; gap: var(--space-3); pointer-events: none; }
+.toast { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4) var(--space-5); background: var(--color-surface); border-radius: var(--radius-md); border-left: 4px solid; box-shadow: var(--shadow-lg); min-width: 320px; max-width: 450px; animation: slideIn 0.25s ease; pointer-events: auto; }
+.toast.success { border-color: var(--color-secondary); background: var(--color-success-bg); }
+.toast.error { border-color: var(--color-danger); background: var(--color-danger-bg); }
+.toast.info { border-color: var(--color-info); background: var(--color-info-bg); }
+.toast-icon { flex-shrink: 0; font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); }
+.toast-body { flex: 1; }
+.toast-body strong { display: block; margin-bottom: var(--space-1); }
+.toast-body p { margin: 0; font-size: var(--font-size-sm); }
+.toast-close { flex-shrink: 0; background: none; border: none; cursor: pointer; font-size: var(--font-size-xl); color: var(--color-text-muted); transition: color var(--transition); }
+.toast-close:hover { color: var(--color-text-primary); }
+@keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideOut { to { transform: translateX(120%); opacity: 0; } }
+
+#navbar { height: var(--navbar-height); background: var(--color-surface); border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow-sm); }
+.nav-logo { display: flex; align-items: center; gap: var(--space-3); font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); flex-shrink: 0; }
+.nav-logo svg { width: 28px; height: 28px; }
+.nav-center { flex: 1; display: flex; justify-content: center; }
+.connection-pill { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--color-success-bg); border-radius: var(--radius-full); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-success); }
+.connection-pill.offline { background: var(--color-danger-bg); color: var(--color-danger); }
+.connection-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); animation: pulse 2s ease-in-out infinite; }
+.connection-pill.offline .connection-dot { background: var(--color-danger); animation: none; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+.nav-right { display: flex; align-items: center; gap: var(--space-5); flex-shrink: 0; }
+.nav-badge { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--color-primary-light); border-radius: var(--radius-full); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-primary); }
+.user-pill { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-full); cursor: pointer; transition: all var(--transition); }
+.user-pill:hover { background: var(--color-primary-light); border-color: var(--color-primary); }
+.user-avatar { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); color: white; font-weight: var(--font-weight-bold); }
+.user-address { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.hamburger { display: none; width: 40px; height: 40px; padding: 0; cursor: pointer; flex-direction: column; justify-content: center; gap: 6px; background: transparent; border: none; transition: all var(--transition); }
+.hamburger span { width: 24px; height: 2px; background: var(--color-text-primary); transition: all var(--transition); border-radius: 1px; }
+.hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(8px, 8px); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(8px, -8px); }
+
+#sidebar { width: var(--sidebar-width); background: var(--color-sidebar-bg); border-right: 1px solid var(--color-border); display: flex; flex-direction: column; height: calc(100vh - var(--navbar-height)); position: sticky; top: var(--navbar-height); overflow-y: auto; z-index: 100; }
+.sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-4); }
+.sidebar-nav a { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); color: var(--color-sidebar-text); text-decoration: none; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); transition: all var(--transition); cursor: pointer; }
+.sidebar-nav a:hover { background: var(--color-sidebar-hover); color: white; }
+.sidebar-nav a.active { background: var(--color-sidebar-active); color: white; }
+.sidebar-nav svg { width: 20px; height: 20px; flex-shrink: 0; }
+.sidebar-footer { padding: var(--space-4); border-top: 1px solid rgba(255,255,255,0.1); font-size: var(--font-size-xs); color: var(--color-sidebar-text); }
+.sidebar-footer strong { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); color: white; }
+
+.app-layout { display: grid; grid-template-columns: var(--sidebar-width) 1fr; min-height: calc(100vh - var(--navbar-height)); }
+#main-content { background: var(--color-bg); overflow-y: auto; height: calc(100vh - var(--navbar-height)); }
+.view { display: none; padding: var(--space-6); min-height: 100%; }
+.view.active { display: block; }
+.view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-8); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
+.view-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); }
+.view-container { max-width: 1200px; margin: 0 auto; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8); }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-6); }
+
+#app-auth { position: fixed; inset: 0; background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.auth-container { background: var(--color-surface); border-radius: var(--radius-xl); padding: var(--space-12); max-width: 480px; width: 90%; box-shadow: 0 12px 48px rgba(0,0,0,0.15); text-align: center; }
+.auth-icon { margin: 0 auto var(--space-6); width: 64px; height: 64px; }
+.auth-icon svg { width: 100%; height: 100%; }
+.auth-title { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-2); }
+.auth-subtitle { color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+.auth-badges { display: flex; justify-content: center; gap: var(--space-3); margin-bottom: var(--space-6); flex-wrap: wrap; }
+.auth-divider { height: 1px; background: var(--color-border); margin: var(--space-6) 0; }
+.auth-form { text-align: left; margin-bottom: var(--space-6); }
+.auth-form label { margin-bottom: var(--space-3); }
+.addr-chip { display: none; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--color-success-bg); border-radius: var(--radius-md); margin-top: var(--space-3); font-size: var(--font-size-sm); color: var(--color-success); }
+.auth-trust-box { background: var(--color-info-bg); border: 1px solid var(--color-info); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-6); font-size: var(--font-size-sm); color: var(--color-info); display: flex; align-items: center; gap: var(--space-3); }
+.auth-trust-box svg { width: 20px; height: 20px; flex-shrink: 0; }
+.auth-footer { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+
+.empty-state { text-align: center; padding: var(--space-12); }
+.empty-state-icon { width: 120px; height: 120px; margin: 0 auto var(--space-6); opacity: 0.3; }
+.empty-state-icon svg { width: 100%; height: 100%; }
+.empty-state-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-2); }
+
+.form-helper { display: block; font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: var(--space-2); }
+.monospace { font-family: 'Courier New', monospace; letter-spacing: 0.05em; }
+.hidden { display: none !important; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 1023px) {
+  .app-layout { grid-template-columns: 1fr; }
+  #sidebar { position: fixed; left: 0; top: var(--navbar-height); bottom: 0; width: var(--sidebar-width); transform: translateX(-100%); transition: transform var(--transition); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  #sidebar.open { transform: translateX(0); z-index: 999; }
+  .hamburger { display: flex; }
+  .view { padding: var(--space-4); }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .nav-logo { font-size: var(--font-size-base); }
+  .nav-center { display: none; }
+  .user-address { display: none; }
+  .toast { min-width: auto; max-width: 95vw; }
+  #main-content { height: auto; }
+  .modal { padding: var(--space-6); width: 95vw; }
+  .auth-container { padding: var(--space-8) var(--space-4); }
+}
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🏥 Skeleton Patient Dashboard</h1>
-      <div class="status" id="status">Loading...</div>
+
+<div id="app-auth">
+  <div class="auth-container">
+    <div class="auth-icon">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 4L8 16v16c0 16 24 24 24 24s24-8 24-24V16L32 4Z" stroke="currentColor" stroke-width="2" color="#0066CC"/>
+        <line x1="32" y1="20" x2="32" y2="40" stroke="currentColor" stroke-width="2" color="#0066CC"/>
+        <line x1="22" y1="30" x2="42" y2="30" stroke="currentColor" stroke-width="2" color="#0066CC"/>
+      </svg>
     </div>
-
-    <div class="content">
-      <!-- Messages -->
-      <div id="messages"></div>
-
-      <!-- Section 1: Setup -->
-      <div class="section">
-        <h2>1️⃣ Setup Account</h2>
-        <div class="form-group">
-          <label>Private Key (from Hardhat output)</label>
-          <input type="text" id="privateKey" placeholder="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80">
-          <div class="text-small">Copy from Hardhat node output (Account #0)</div>
-        </div>
-        <button onclick="setupAccount()">✓ Load Account</button>
-      </div>
-
-      <!-- Section 2: Patient Registration -->
-      <div class="section">
-        <h2>2️⃣ Register Patient</h2>
-        <div class="form-group">
-          <label>DID (Decentralized Identifier)</label>
-          <input type="text" id="did" placeholder="did:polygon:0x123abc">
-        </div>
-        <button onclick="registerPatient()">Register</button>
-      </div>
-
-      <!-- Section 3: Upload Record -->
-      <div class="section">
-        <h2>3️⃣ Upload Health Record</h2>
-        <div class="form-group">
-          <label>Record Type</label>
-          <input type="text" id="recordType" placeholder="lab_result">
-        </div>
-        <div class="form-group">
-          <label>Record Data (JSON)</label>
-          <textarea id="recordData">{"glucose": 120, "timestamp": "2026-04-17"}</textarea>
-        </div>
-        <button onclick="uploadRecord()">Upload Record</button>
-      </div>
-
-      <!-- Section 4: View Records -->
-      <div class="section">
-        <h2>4️⃣ My Records</h2>
-        <button onclick="viewRecords()">📋 Fetch My Records</button>
-        <div id="recordsList" style="margin-top: 15px;"></div>
-      </div>
-
-      <!-- Section 5: Grant Access -->
-      <div class="section">
-        <h2>5️⃣ Grant Access to Provider</h2>
-        <div class="form-group">
-          <label>Provider Address</label>
-          <input type="text" id="providerAddress" placeholder="0x70997970c51812dc3a010c7d01b50e0d17dc79c8">
-          <div class="text-small">Use Account #1 from Hardhat output</div>
-        </div>
-        <div class="form-group">
-          <label>Duration (days)</label>
-          <input type="number" id="duration" value="30">
-        </div>
-        <button onclick="grantAccess()">✓ Grant 30-Day Access</button>
-      </div>
-
-      <!-- Section 6: Revoke Access -->
-      <div class="section">
-        <h2>6️⃣ Revoke Access</h2>
-        <div class="form-group">
-          <label>Provider Address to Revoke</label>
-          <input type="text" id="revokeProviderAddress" placeholder="0x70997970c51812dc3a010c7d01b50e0d17dc79c8">
-        </div>
-        <button onclick="revokeAccess()">❌ Revoke Access</button>
-      </div>
+    <h1 class="auth-title">Skeleton Health</h1>
+    <p class="auth-subtitle">Secure Health Records on Blockchain</p>
+    <div class="auth-badges">
+      <div class="badge badge-hipaa"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> HIPAA Compliant</div>
+      <div class="badge badge-encrypted"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> AES-256-GCM</div>
     </div>
+    <div class="auth-divider"></div>
+    <div class="auth-form">
+      <label for="input-key">Enter Your Access Key</label>
+      <input type="password" id="input-key" autocomplete="off" placeholder="Paste your access key">
+      <div class="addr-chip" id="addr-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> <span id="addr-chip-text">Address verified</span></div>
+      <p class="form-helper">Your key is never sent to any server. Your address is derived in your browser only.</p>
+    </div>
+    <div class="auth-trust-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span>Your keys never leave your browser. This is your data security.</span></div>
+    <button class="btn btn-primary btn-full" data-action="connect" id="btn-connect">Unlock Dashboard</button>
+    <p class="auth-footer" style="margin-top: var(--space-6);">First time? Set up your account details in <strong>Settings</strong> after connecting.</p>
+  </div>
+</div>
+
+<div id="app-shell" style="display: none;">
+
+  <nav id="navbar">
+    <div class="nav-logo"><svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32 4L8 16v16c0 16 24 24 24 24s24-8 24-24V16L32 4Z" stroke="currentColor" stroke-width="2" color="#0066CC"/><line x1="32" y1="20" x2="32" y2="40" stroke="currentColor" stroke-width="2" color="#0066CC"/><line x1="22" y1="30" x2="42" y2="30" stroke="currentColor" stroke-width="2" color="#0066CC"/></svg> Skeleton Health</div>
+    <div class="nav-center"><div class="connection-pill" id="connection-pill"><span class="connection-dot"></span> Blockchain Connected</div></div>
+    <div class="nav-right">
+      <div class="nav-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> HIPAA Compliant</div>
+      <div class="user-pill"><div class="user-avatar" id="user-avatar">P</div><div class="user-address" id="user-address">0x1234...abcd</div></div>
+      <button class="hamburger" id="btn-hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="app-layout">
+
+    <aside id="sidebar">
+      <nav class="sidebar-nav">
+        <a data-view="dashboard" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Dashboard</a>
+        <a data-view="records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg> My Records</a>
+        <a data-view="access"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Access Control</a>
+        <a data-view="audit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Audit Log</a>
+        <a data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.48 3.08l4.24 4.24M1 12h6m6 0h6m-16.78 7.78l4.24-4.24m3.08-2.48l4.24-4.24"/></svg> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> End-to-end encrypted</strong>
+        <p>Your keys never leave this browser. This is your data security.</p>
+      </div>
+    </aside>
+
+    <main id="main-content">
+
+      <!-- DASHBOARD -->
+      <div id="view-dashboard" class="view active">
+        <div class="view-container">
+          <div class="view-header">
+            <div><h1 class="view-title">Dashboard</h1><p style="margin: 0; color: var(--color-text-muted); font-size: var(--font-size-sm);"><span id="greeting-text">Good morning</span>, <span id="greeting-addr" class="monospace">0x1234...abcd</span></p></div>
+          </div>
+          <div class="grid-2">
+            <div class="stat-card"><div class="stat-label">Total Records</div><div class="stat-value" id="stat-records">0</div><div class="form-helper">encrypted records</div></div>
+            <div class="stat-card"><div class="stat-label">Active Providers</div><div class="stat-value" id="stat-providers">0</div><div class="form-helper">with access</div></div>
+            <div class="stat-card"><div class="stat-label">Last Activity</div><div class="stat-value" id="stat-activity" style="font-size: var(--font-size-lg);">—</div><div class="form-helper">on your account</div></div>
+            <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-value" id="stat-month">0</div><div class="form-helper">new records</div></div>
+          </div>
+          <div style="display: flex; gap: var(--space-3); margin-bottom: var(--space-8); flex-wrap: wrap;">
+            <button class="btn btn-primary" data-action="nav" data-view="records"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Upload New Record</button>
+            <button class="btn btn-outline" data-action="nav" data-view="access"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Manage Access</button>
+            <button class="btn btn-outline" data-action="nav" data-view="audit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> View Audit Log</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">Recent Records</h3><a href="#" data-action="nav" data-view="records" style="font-size: var(--font-size-sm);">View all →</a></div>
+            <div id="recent-records-list" class="card-body"><p style="text-align: center; color: var(--color-text-muted);">No records yet. Upload your first health record to get started.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY RECORDS -->
+      <div id="view-records" class="view">
+        <div class="view-container">
+          <div class="view-header"><h1 class="view-title">My Health Records</h1><button class="btn btn-primary" data-action="upload-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Upload New Record</button></div>
+          <div id="upload-form-container" style="display: none; margin-bottom: var(--space-8);">
+            <div class="card">
+              <div class="card-header"><h3 class="card-title">Encrypt & Upload Health Record</h3><button class="btn btn-ghost" data-action="upload-toggle" style="padding: 0;">✕</button></div>
+              <div class="card-body">
+                <form id="upload-form">
+                  <div class="form-group"><label for="record-type">Record Type *</label><select id="record-type" required><option value="">— Select type —</option><option value="lab_result">Lab Result</option><option value="prescription">Prescription</option><option value="imaging">Imaging</option><option value="discharge">Discharge Summary</option><option value="vaccination">Vaccination</option><option value="insurance">Insurance</option><option value="other">Other</option></select></div>
+                  <div class="form-group" id="lab-fields" style="display: none;"><label for="test-name">Test Name *</label><input type="text" id="test-name" placeholder="e.g., CBC, Glucose, Cholesterol"><label for="test-value" style="margin-top: var(--space-4);">Value *</label><input type="number" id="test-value" step="0.01" placeholder="e.g., 95.5"><label for="test-unit" style="margin-top: var(--space-4);">Unit *</label><select id="test-unit"><option value="mg/dL">mg/dL</option><option value="mmol/L">mmol/L</option><option value="%">%</option><option value="bpm">bpm</option><option value="mmHg">mmHg</option><option value="ng/mL">ng/mL</option><option value="IU/L">IU/L</option></select></div>
+                  <div class="form-group"><label for="record-notes">Clinical Notes</label><textarea id="record-notes" placeholder="Add any additional notes or details about this record..."></textarea></div>
+                  <div id="upload-progress" style="display: none; margin-bottom: var(--space-4);"><div style="margin-bottom: var(--space-3);"><div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-2);">Uploading to secure storage...</div><div style="display: flex; gap: var(--space-2); flex-direction: column;"><div style="display: flex; align-items: center; gap: var(--space-2);"><div id="step-1-icon" style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><span>Encrypting with AES-256-GCM...</span></div><div style="display: flex; align-items: center; gap: var(--space-2);"><div id="step-2-icon" style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><span>Storing in decentralized network...</span></div><div style="display: flex; align-items: center; gap: var(--space-2);"><div id="step-3-icon" style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><span>Recording on blockchain...</span></div></div></div><div id="upload-success" style="display: none; padding: var(--space-4); background: var(--color-success-bg); border: 1px solid var(--color-success); border-radius: var(--radius-md); color: var(--color-success);">✓ Record successfully stored. Immutable blockchain confirmation received.</div></div>
+                  <div style="display: flex; gap: var(--space-3);"><button type="submit" class="btn btn-primary" id="btn-upload"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Encrypt & Upload</button><button type="button" class="btn btn-outline" data-action="upload-toggle">Cancel</button></div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div id="records-container"><div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div><h3 class="empty-state-title">No records yet</h3><p class="empty-state-text">Your health records will appear here once you upload them.</p><button class="btn btn-primary" data-action="upload-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Upload Your First Record</button></div></div>
+        </div>
+      </div>
+
+      <!-- ACCESS CONTROL -->
+      <div id="view-access" class="view">
+        <div class="view-container">
+          <div class="view-header"><h1 class="view-title">Access Control</h1></div>
+          <div class="card" style="margin-bottom: var(--space-6);"><div class="card-header"><h3 class="card-title">Providers with Access</h3><span style="font-size: var(--font-size-sm); color: var(--color-text-muted);" id="provider-count">0 providers</span></div><div id="access-list-container" class="card-body"><p style="text-align: center; color: var(--color-text-muted);">No providers have been granted access yet.</p></div></div>
+          <div class="card" style="margin-bottom: var(--space-6);"><div class="card-header"><h3 class="card-title">Grant New Access</h3></div><div class="card-body"><form id="grant-form"><div class="form-group"><label for="provider-address">Provider Ethereum Address *</label><input type="text" id="provider-address" placeholder="0x..." required><p class="form-helper">The provider's Ethereum wallet address that will receive access to your records.</p></div><div class="form-group"><label for="access-duration">Access Duration *</label><select id="access-duration" required><option value="">— Select duration —</option><option value="1">1 Day</option><option value="7">7 Days (1 Week)</option><option value="30">30 Days (1 Month)</option><option value="90">90 Days (3 Months)</option><option value="365">365 Days (1 Year)</option></select><p class="form-helper">Access will automatically expire. You can revoke at any time.</p></div><button type="submit" class="btn btn-success"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Grant Access</button></form></div></div>
+          <div class="card"><div class="card-header"><h3 class="card-title">Check Access Status</h3></div><div class="card-body"><form id="check-access-form"><div class="form-group"><label for="check-address">Provider Address</label><input type="text" id="check-address" placeholder="0x..."></div><div style="display: flex; gap: var(--space-3);"><button type="submit" class="btn btn-outline" data-action="check-access">Check Status</button></div><div id="check-result" style="margin-top: var(--space-4);"></div></form></div></div>
+        </div>
+      </div>
+
+      <!-- AUDIT LOG -->
+      <div id="view-audit" class="view">
+        <div class="view-container">
+          <div class="view-header"><h1 class="view-title">Audit Log</h1><span style="font-size: var(--font-size-sm); color: var(--color-text-muted);" id="audit-count">0 events</span></div>
+          <div id="audit-container"><div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3 class="empty-state-title">No audit entries yet</h3><p class="empty-state-text">Actions on your account will appear here in chronological order.</p></div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="view-settings" class="view">
+        <div class="view-container">
+          <div class="view-header"><h1 class="view-title">Settings</h1></div>
+          <div class="card" style="margin-bottom: var(--space-6);"><div class="card-header"><h3 class="card-title">Account & Identity</h3></div><div class="card-body"><div class="form-group"><label>Your Patient ID</label><div style="display: flex; gap: var(--space-2);"><input type="text" id="display-address" readonly style="background: var(--color-bg);" class="monospace"><button class="btn btn-outline" id="btn-copy-address" style="flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div></div><div class="form-group"><label>Decentralized Identifier (DID)</label><input type="text" id="display-did" readonly style="background: var(--color-bg);"><p class="form-helper">Identifier for your patient record on the blockchain.</p></div><div style="background: var(--color-bg); padding: var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-4); display: none;" id="reg-section"><label style="margin-bottom: var(--space-3);">Register on Blockchain</label><div class="form-group" style="margin-bottom: var(--space-3);"><input type="text" id="input-did" placeholder="did:polygon:0x..." ></div><div style="display: flex; gap: var(--space-2);"><button type="button" class="btn btn-outline" id="btn-auto-did">Auto-generate DID</button><button type="button" class="btn btn-primary" id="btn-register-did">Register on Blockchain</button></div></div></div></div>
+          <div class="card" style="margin-bottom: var(--space-6);"><div class="card-header"><h3 class="card-title">Security Information</h3></div><div class="card-body"><div style="display: flex; flex-direction: column; gap: var(--space-4);"><div><h4 style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> AES-256-GCM Encryption</h4><p style="margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-sm);">Your health records are encrypted with military-grade encryption. Only you can decrypt them.</p></div><hr style="border: none; border-top: 1px solid var(--color-border); margin: 0;"><div><h4 style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg> Immutable Records</h4><p style="margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-sm);">Once recorded on the blockchain, your records cannot be altered or deleted. This guarantees authenticity.</p></div><hr style="border: none; border-top: 1px solid var(--color-border); margin: 0;"><div><h4 style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Patient Control</h4><p style="margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-sm);">You control who has access to your data. Access grants expire automatically and can be revoked anytime.</p></div><hr style="border: none; border-top: 1px solid var(--color-border); margin: 0;"><div><h4 style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2z"/><path d="M12 3v18"/></svg> No Server-Side Keys</h4><p style="margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-sm);">Your encryption keys are derived from your access key and never stored on our servers.</p></div></div></div></div>
+          <div class="card"><div class="card-header"><h3 class="card-title">Connection</h3></div><div class="card-body"><p style="margin-bottom: var(--space-4);">Connected to blockchain. Your records are being secured on the distributed ledger.</p><button class="btn btn-danger" data-action="disconnect"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Disconnect & Change Account</button><p class="form-helper" style="margin-top: var(--space-3);">This will clear your access key from this browser.</p></div></div>
+        </div>
+      </div>
+
+    </main>
+
   </div>
 
-  <script>
-    const API_URL = 'http://localhost:5000/api';
-    let currentAccount = null;
+</div>
 
-    async function setupAccount() {
-      const privateKey = document.getElementById('privateKey').value;
-      if (!privateKey) {
-        showMessage('error', 'Enter a private key');
-        return;
-      }
+<div id="toast-container"></div>
+<div id="modal-overlay" style="display: none;"></div>
+
+<script type="module">
+import { ethers } from 'ethers';
+
+const STATE = { connected: false, privateKey: null, address: null, did: null, publicKey: null, activeView: 'dashboard', records: [], providers: new Map(), auditLogs: [], loading: {} };
+const API = 'http://localhost:5000/api';
+
+function truncateAddress(addr) { return addr ? addr.slice(0, 6) + '...' + addr.slice(-4) : '0x0000...0000'; }
+function parsePrivateKey(raw) { const key = raw.trim().startsWith('0x') ? raw.trim() : '0x' + raw.trim(); if (!/^0x[0-9a-fA-F]{64}$/.test(key)) throw new Error('Invalid private key format'); return key; }
+function deriveAddressFromKey(rawKey) { try { const key = parsePrivateKey(rawKey); const wallet = new ethers.Wallet(key); return wallet.address; } catch (err) { throw new Error('Invalid access key'); } }
+function getPublicKeyFromKey(rawKey) { try { const key = parsePrivateKey(rawKey); const wallet = new ethers.Wallet(key); return wallet.signingKey.publicKey; } catch (err) { throw new Error('Invalid access key'); } }
+function formatDate(timestamp) { if (!timestamp) return '—'; const date = new Date(parseInt(timestamp) * 1000); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+function getGreeting() { const hour = new Date().getHours(); if (hour < 12) return 'Good morning'; if (hour < 18) return 'Good afternoon'; return 'Good evening'; }
+function setLoading(key, value) { STATE.loading[key] = value; }
+
+async function apiFetch(method, path, body = null, loadingKey = null) {
+  if (loadingKey) setLoading(loadingKey, true);
+  try {
+    const opts = { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined };
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || `Request failed: ${res.status}`);
+    return data;
+  } catch (err) {
+    toast('error', err.message);
+    throw err;
+  } finally {
+    if (loadingKey) setLoading(loadingKey, false);
+  }
+}
+
+async function apiHealth() { try { await apiFetch('GET', '/health'); updateConnectionPill(true); return true; } catch { updateConnectionPill(false); return false; } }
+async function apiRegisterPatient(did, publicKey) { return apiFetch('POST', '/patient/register', { privateKey: STATE.privateKey, did, publicKey }, 'registering'); }
+async function apiUploadRecord(data) { return apiFetch('POST', '/records/upload', { data, privateKey: STATE.privateKey }, 'uploading'); }
+async function apiAddRecord(recordType, ipfsHash) { return apiFetch('POST', '/records/add', { privateKey: STATE.privateKey, recordType, ipfsHash }, 'addingRecord'); }
+async function apiGetRecords(address) { return apiFetch('GET', `/records/${address}`); }
+async function apiGrantAccess(providerAddress, durationDays) { return apiFetch('POST', '/access/grant', { privateKey: STATE.privateKey, providerAddress, durationDays }, 'granting'); }
+async function apiRevokeAccess(providerAddress) { return apiFetch('POST', '/access/revoke', { privateKey: STATE.privateKey, providerAddress }, 'revoking'); }
+async function apiCheckAccess(patientAddress, providerAddress) { return apiFetch('GET', `/access/${patientAddress}/${providerAddress}`); }
+async function apiGetAudit(address) { return apiFetch('GET', `/audit/${address}`); }
+async function apiGetIpfsRecord(hash) { return apiFetch('POST', `/ipfs/${hash}`, { privateKey: STATE.privateKey }); }
+
+function toast(type, message, duration = 4500) {
+  const container = document.getElementById('toast-container');
+  const id = 'toast-' + Date.now();
+  const icons = { success: '✓', error: '!', info: 'ℹ' };
+  const t = document.createElement('div');
+  t.id = id; t.className = `toast ${type}`;
+  t.innerHTML = `<span class="toast-icon">${icons[type]}</span><div class="toast-body"><strong>${type.charAt(0).toUpperCase() + type.slice(1)}</strong><p>${message}</p></div><button class="toast-close" data-toast="${id}">&times;</button>`;
+  container.appendChild(t);
+  const timer = setTimeout(() => dismissToast(id), duration);
+  t.querySelector('.toast-close').onclick = () => { clearTimeout(timer); dismissToast(id); };
+}
+
+function dismissToast(id) { const el = document.getElementById(id); if (!el) return; el.style.animation = 'slideOut 0.25s ease forwards'; setTimeout(() => el.remove(), 250); }
+
+function showConfirm(title, body, onConfirm) {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.innerHTML = `<div class="modal"><h3 class="modal-title">${title}</h3><p class="modal-body">${body}</p><div class="modal-actions"><button class="btn btn-ghost" id="modal-cancel">Cancel</button><button class="btn btn-danger" id="modal-confirm">Confirm</button></div></div>`;
+  overlay.style.display = 'flex';
+  document.getElementById('modal-cancel').onclick = () => { overlay.style.display = 'none'; };
+  document.getElementById('modal-confirm').onclick = () => { overlay.style.display = 'none'; onConfirm(); };
+}
+
+function updateConnectionPill(online) { const pill = document.getElementById('connection-pill'); if (pill) pill.classList.toggle('offline', !online); }
+
+function updateUserPill() {
+  document.getElementById('user-address').textContent = truncateAddress(STATE.address);
+  document.getElementById('user-avatar').textContent = STATE.address ? STATE.address[2].toUpperCase() : '?';
+  document.getElementById('display-address').value = STATE.address || '';
+  document.getElementById('greeting-addr').textContent = truncateAddress(STATE.address);
+  document.getElementById('greeting-text').textContent = getGreeting();
+}
+
+function navigateTo(view) {
+  STATE.activeView = view;
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  document.querySelector(`[data-view="${view}"]`).classList.add('active');
+  render();
+  if (window.innerWidth < 1024) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('btn-hamburger').classList.remove('active'); }
+}
+
+async function renderDashboard() {
+  try {
+    const records = await apiGetRecords(STATE.address);
+    STATE.records = records || [];
+    document.getElementById('stat-records').textContent = STATE.records.length;
+    document.getElementById('stat-providers').textContent = STATE.providers.size;
+    const now = Date.now(); const recentRecords = STATE.records.filter(r => (now - parseInt(r.timestamp) * 1000) < (30 * 24 * 60 * 60 * 1000));
+    document.getElementById('stat-month').textContent = recentRecords.length;
+    if (STATE.records.length > 0) { const latest = STATE.records.reduce((a, b) => parseInt(a.timestamp) > parseInt(b.timestamp) ? a : b); document.getElementById('stat-activity').textContent = formatDate(latest.timestamp); }
+    const recentList = document.getElementById('recent-records-list');
+    if (STATE.records.length === 0) { recentList.innerHTML = '<p style="text-align: center; color: var(--color-text-muted);">No records yet. Upload your first health record to get started.</p>'; } else { const recent = STATE.records.slice(-3).reverse(); recentList.innerHTML = recent.map(r => `<div class="list-item"><div><strong>${r.recordType || 'Record'}</strong><div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">${formatDate(r.timestamp)}</div></div><div class="badge badge-encrypted"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Encrypted</div></div>`).join(''); }
+  } catch (err) {}
+}
+
+function renderRecordsList() {
+  const container = document.getElementById('records-container');
+  if (STATE.records.length === 0) { container.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div><h3 class="empty-state-title">No records yet</h3><p class="empty-state-text">Your health records will appear here once you upload them.</p><button class="btn btn-primary" data-action="upload-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Upload Your First Record</button></div>`; return; }
+  const table = document.createElement('table');
+  table.innerHTML = `<thead><tr><th>Type</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody>${STATE.records.map(r => `<tr><td>${r.recordType || 'Record'}</td><td>${formatDate(r.timestamp)}</td><td><span class="badge badge-encrypted">Encrypted</span></td><td><button class="btn btn-ghost" data-action="decrypt" data-hash="${r.ipfsHash}" style="font-size: var(--font-size-sm); padding: var(--space-2) var(--space-3);">Decrypt & View</button></td></tr>`).join('')}</tbody>`;
+  container.innerHTML = '';
+  container.appendChild(table);
+}
+
+async function renderAccess() {
+  try {
+    document.getElementById('provider-count').textContent = STATE.providers.size + ' provider' + (STATE.providers.size === 1 ? '' : 's');
+    const listContainer = document.getElementById('access-list-container');
+    if (STATE.providers.size === 0) { listContainer.innerHTML = '<p style="text-align: center; color: var(--color-text-muted);">No providers have been granted access yet.</p>'; } else { listContainer.innerHTML = Array.from(STATE.providers.values()).map(p => `<div class="list-item"><div><strong class="monospace">${truncateAddress(p.address)}</strong><div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">${p.durationDays} day${p.durationDays === 1 ? '' : 's'} • Expires ${p.expiryDate}</div></div><button class="btn btn-danger" data-action="revoke" data-provider="${p.address}" style="font-size: var(--font-size-sm); padding: var(--space-2) var(--space-3);">Revoke</button></div>`).join(''); }
+  } catch (err) {}
+}
+
+async function renderAudit() {
+  try {
+    const logs = await apiGetAudit(STATE.address);
+    STATE.auditLogs = logs || [];
+    document.getElementById('audit-count').textContent = STATE.auditLogs.length + ' event' + (STATE.auditLogs.length === 1 ? '' : 's');
+    const container = document.getElementById('audit-container');
+    if (STATE.auditLogs.length === 0) { container.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3 class="empty-state-title">No audit entries yet</h3><p class="empty-state-text">Actions on your account will appear here in chronological order.</p></div>`; return; }
+    const timeline = STATE.auditLogs.map((log, i) => `<div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-6);"><div style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${i + 1}</div><div style="flex: 1;"><div class="monospace" style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-2);">${log.slice(0, 10)}...${log.slice(-10)}</div><p style="margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-sm);">Immutable blockchain record. <a href="#" style="color: var(--color-primary);">View on explorer →</a></p></div></div>`).join('');
+    container.innerHTML = `<div style="padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg);">${timeline}</div>`;
+  } catch (err) {}
+}
+
+async function renderSettings() {
+  document.getElementById('display-did').value = STATE.did || 'Not registered';
+  document.getElementById('reg-section').style.display = STATE.did ? 'none' : 'block';
+}
+
+function renderView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById(`view-${view}`);
+  if (el) el.classList.add('active');
+  switch (view) {
+    case 'dashboard': renderDashboard(); break;
+    case 'records': renderRecordsList(); break;
+    case 'access': renderAccess(); break;
+    case 'audit': renderAudit(); break;
+    case 'settings': renderSettings(); break;
+  }
+}
+
+function render() {
+  if (!STATE.connected) { showAuthScreen(); return; }
+  showAppShell();
+  renderView(STATE.activeView);
+}
+
+function showAuthScreen() { document.getElementById('app-auth').style.display = 'flex'; document.getElementById('app-shell').style.display = 'none'; }
+function showAppShell() { document.getElementById('app-auth').style.display = 'none'; document.getElementById('app-shell').style.display = 'block'; }
+
+async function handleConnect() {
+  const keyInput = document.getElementById('input-key');
+  const key = keyInput.value.trim();
+  if (!key) { toast('error', 'Please enter your access key'); return; }
+  try {
+    const addr = deriveAddressFromKey(key);
+    const pubKey = getPublicKeyFromKey(key);
+    STATE.privateKey = parsePrivateKey(key);
+    STATE.address = addr;
+    STATE.publicKey = pubKey;
+    STATE.connected = true;
+    keyInput.value = '';
+    try { const records = await apiGetRecords(STATE.address); STATE.records = records || []; } catch { STATE.records = []; }
+    updateUserPill();
+    apiHealth();
+    render();
+  } catch (err) { toast('error', err.message); }
+}
+
+function handleDisconnect() {
+  showConfirm('Disconnect?', 'You will need to enter your access key again to reconnect. This action does not affect your data on the blockchain.', () => {
+    STATE.connected = false;
+    STATE.privateKey = null;
+    STATE.address = null;
+    STATE.did = null;
+    STATE.records = [];
+    STATE.providers.clear();
+    STATE.activeView = 'dashboard';
+    render();
+  });
+}
+
+function toggleUploadForm() {
+  const container = document.getElementById('upload-form-container');
+  container.style.display = container.style.display === 'none' ? 'block' : 'none';
+  if (container.style.display === 'block') container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('record-type')?.addEventListener('change', e => {
+  document.getElementById('lab-fields').style.display = e.target.value === 'lab_result' ? 'block' : 'none';
+});
+
+async function handleUploadRecord() {
+  const form = document.getElementById('upload-form');
+  if (!form.checkValidity()) { toast('error', 'Please fill in all required fields'); return; }
+  const recordType = document.getElementById('record-type').value;
+  let data = { type: recordType };
+  if (recordType === 'lab_result') {
+    data.testName = document.getElementById('test-name').value;
+    data.value = document.getElementById('test-value').value;
+    data.unit = document.getElementById('test-unit').value;
+  }
+  data.notes = document.getElementById('record-notes').value;
+  try {
+    document.getElementById('upload-progress').style.display = 'block';
+    document.getElementById('upload-success').style.display = 'none';
+    document.getElementById('btn-upload').disabled = true;
+    document.getElementById('step-1-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
+    const uploadResp = await apiUploadRecord(JSON.stringify(data));
+    const ipfsHash = uploadResp.hash;
+    document.getElementById('step-2-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
+    await apiAddRecord(recordType, ipfsHash);
+    document.getElementById('step-3-icon').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
+    document.getElementById('upload-success').style.display = 'block';
+    form.reset();
+    document.getElementById('record-type').value = '';
+    document.getElementById('lab-fields').style.display = 'none';
+    setTimeout(() => { toggleUploadForm(); renderRecordsList(); renderDashboard(); }, 2000);
+    toast('success', 'Record encrypted and stored securely');
+  } catch (err) { toast('error', 'Upload failed: ' + err.message); } finally { document.getElementById('upload-progress').style.display = 'none'; document.getElementById('btn-upload').disabled = false; }
+}
+
+document.getElementById('upload-form')?.addEventListener('submit', e => { e.preventDefault(); handleUploadRecord(); });
+
+async function handleDecryptRecord(hash) {
+  const btn = event.target;
+  btn.disabled = true;
+  try {
+    const response = await apiGetIpfsRecord(hash);
+    const data = response.data;
+    const recordData = typeof data === 'string' ? JSON.parse(data) : data;
+    const row = event.target.closest('tr');
+    const details = row.nextElementSibling;
+    if (details && details.classList.contains('record-details')) {
+      details.style.display = details.style.display === 'none' ? 'table-row' : 'none';
+    } else {
+      const detailsRow = document.createElement('tr');
+      detailsRow.classList.add('record-details');
+      detailsRow.innerHTML = `<td colspan="4"><div style="padding: var(--space-4); background: var(--color-bg); border-radius: var(--radius-md); margin: var(--space-3) 0;"><div style="display: flex; gap: var(--space-2); margin-bottom: var(--space-3);"><span class="badge badge-success">Decrypted</span><span class="badge badge-trust">Verified on Blockchain</span></div><div style="background: var(--color-surface); padding: var(--space-4); border-radius: var(--radius-md); font-family: monospace; font-size: var(--font-size-sm); color: var(--color-text-secondary); white-space: pre-wrap; word-break: break-all;">${JSON.stringify(recordData, null, 2)}</div><button class="btn btn-ghost" style="margin-top: var(--space-3); font-size: var(--font-size-sm);" onclick="this.closest('tr').remove();">Hide Details</button></div></td>`;
+      row.parentNode.insertBefore(detailsRow, row.nextSibling);
+    }
+    toast('success', 'Record decrypted');
+  } catch (err) { toast('error', 'Decryption failed: ' + err.message); } finally { btn.disabled = false; }
+}
+
+async function handleGrantAccess() {
+  const provider = document.getElementById('provider-address').value.trim();
+  const duration = document.getElementById('access-duration').value;
+  if (!provider || !duration) { toast('error', 'Please fill in all fields'); return; }
+  if (!/^0x[0-9a-fA-F]{40}$/.test(provider)) { toast('error', 'Invalid Ethereum address format'); return; }
+  try {
+    await apiGrantAccess(provider, parseInt(duration));
+    const expiryDate = new Date(Date.now() + parseInt(duration) * 24 * 60 * 60 * 1000);
+    STATE.providers.set(provider, { address: provider, durationDays: parseInt(duration), expiryDate: expiryDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+    document.getElementById('grant-form').reset();
+    renderAccess();
+    toast('success', 'Access granted to provider');
+  } catch (err) { toast('error', 'Grant failed: ' + err.message); }
+}
+
+async function handleRevokeAccess(provider) {
+  showConfirm('Revoke Access?', `This provider will no longer be able to view your health records. This action is permanent.`, async () => {
+    try {
+      await apiRevokeAccess(provider);
+      STATE.providers.delete(provider);
+      renderAccess();
+      toast('success', 'Access revoked');
+    } catch (err) { toast('error', 'Revoke failed: ' + err.message); }
+  });
+}
+
+async function handleCheckAccess() {
+  const provider = document.getElementById('check-address').value.trim();
+  if (!provider) { toast('error', 'Please enter a provider address'); return; }
+  if (!/^0x[0-9a-fA-F]{40}$/.test(provider)) { toast('error', 'Invalid Ethereum address format'); return; }
+  try {
+    const result = await apiCheckAccess(STATE.address, provider);
+    const resultEl = document.getElementById('check-result');
+    resultEl.innerHTML = result.hasAccess ? `<div class="badge badge-success" style="display: inline-flex;">✓ Active Access</div>` : `<div class="badge" style="display: inline-flex; background: var(--color-bg); color: var(--color-text-muted);">✕ No Access</div>`;
+  } catch (err) { toast('error', 'Check failed: ' + err.message); }
+}
+
+document.getElementById('grant-form')?.addEventListener('submit', e => { e.preventDefault(); handleGrantAccess(); });
+document.getElementById('check-access-form')?.addEventListener('submit', e => { e.preventDefault(); handleCheckAccess(); });
+
+async function handleRegisterDID() {
+  let did = document.getElementById('input-did').value.trim();
+  if (!did) { toast('error', 'Please enter or generate a DID'); return; }
+  try {
+    await apiRegisterPatient(did, STATE.publicKey);
+    STATE.did = did;
+    document.getElementById('display-did').value = did;
+    document.getElementById('reg-section').style.display = 'none';
+    toast('success', 'DID registered on blockchain');
+  } catch (err) { toast('error', 'Registration failed: ' + err.message); }
+}
+
+document.getElementById('btn-auto-did')?.addEventListener('click', () => { document.getElementById('input-did').value = `did:polygon:${STATE.address}`; });
+document.getElementById('btn-register-did')?.addEventListener('click', handleRegisterDID);
+document.getElementById('btn-copy-address')?.addEventListener('click', () => { const addr = document.getElementById('display-address').value; navigator.clipboard.writeText(addr); toast('success', 'Copied to clipboard'); });
+
+document.addEventListener('click', e => {
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  const view = e.target.closest('[data-view]')?.dataset.view;
+  if (action === 'connect') handleConnect();
+  if (action === 'disconnect') handleDisconnect();
+  if (action === 'nav' && view) navigateTo(view);
+  if (action === 'upload-toggle') toggleUploadForm();
+  if (action === 'decrypt') handleDecryptRecord(e.target.closest('[data-hash]').dataset.hash);
+  if (action === 'revoke') handleRevokeAccess(e.target.closest('[data-provider]').dataset.provider);
+  if (action === 'check-access') handleCheckAccess();
+  if (action === 'sidebar-toggle') { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('btn-hamburger').classList.toggle('active'); }
+});
+
+document.getElementById('btn-hamburger')?.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('btn-hamburger').classList.toggle('active');
+});
+
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+  link.addEventListener('click', (e) => { e.preventDefault(); const view = link.dataset.view; if (view) navigateTo(view); });
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const keyInput = document.getElementById('input-key');
+  if (keyInput) {
+    keyInput.addEventListener('input', () => {
       try {
-        currentAccount = privateKey;
-        showMessage('success', `✓ Account loaded`);
-        updateStatus();
-      } catch (e) {
-        showMessage('error', e.message);
-      }
-    }
-
-    async function registerPatient() {
-      if (!currentAccount) {
-        showMessage('error', 'Setup account first');
-        return;
-      }
-      const did = document.getElementById('did').value;
-      if (!did) {
-        showMessage('error', 'Enter DID');
-        return;
-      }
-      try {
-        showMessage('info', 'Registering patient...');
-        const publicKey = '0x'; // Placeholder
-        const res = await fetch(`${API_URL}/patient/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ privateKey: currentAccount, did, publicKey })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showMessage('success', `✓ Patient registered! TX: ${data.txHash.slice(0, 10)}...`);
-        } else {
-          showMessage('error', data.error);
-        }
-      } catch (e) {
-        showMessage('error', e.message);
-      }
-    }
-
-    async function uploadRecord() {
-      if (!currentAccount) {
-        showMessage('error', 'Setup account first');
-        return;
-      }
-      const recordType = document.getElementById('recordType').value;
-      const recordData = document.getElementById('recordData').value;
-      if (!recordType || !recordData) {
-        showMessage('error', 'Fill all fields');
-        return;
-      }
-      try {
-        showMessage('info', 'Encrypting and uploading record...');
-        const data = JSON.parse(recordData);
-        // Step 1: Upload to file-based IPFS with encryption
-        const uploadRes = await fetch(`${API_URL}/records/upload`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ data, privateKey: currentAccount })
-        });
-        const uploadData = await uploadRes.json();
-        if (!uploadData.success) {
-          showMessage('error', uploadData.error);
-          return;
-        }
-        const ipfsHash = uploadData.ipfsHash;
-        // Step 2: Add record to blockchain
-        const addRes = await fetch(`${API_URL}/records/add`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ privateKey: currentAccount, recordType, ipfsHash })
-        });
-        const addData = await addRes.json();
-        if (addData.success) {
-          const encryptionMsg = uploadData.encrypted ? ' (🔒 AES-256-GCM encrypted)' : '';
-          showMessage('success', `✓ Record uploaded!${encryptionMsg} IPFS: ${ipfsHash.slice(0, 10)}...`);
-        } else {
-          showMessage('error', addData.error);
-        }
-      } catch (e) {
-        showMessage('error', e.message);
-      }
-    }
-
-    async function viewRecords() {
-      if (!currentAccount) {
-        showMessage('error', 'Setup account first');
-        return;
-      }
-      try {
-        showMessage('info', 'Fetching records...');
-        const address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'; // Account #0
-        const res = await fetch(`${API_URL}/records/${address}`);
-        const data = await res.json();
-        if (data.success) {
-          const recordsList = document.getElementById('recordsList');
-          recordsList.innerHTML = '';
-          if (data.records.length === 0) {
-            recordsList.innerHTML = '<p style="color:#999;">No records yet</p>';
-          } else {
-            data.records.forEach((r, i) => {
-              const timestamp = new Date(parseInt(r.timestamp) * 1000).toLocaleString();
-              recordsList.innerHTML += `
-                <div class="record-item">
-                  <div><span class="label">Record ${i+1}:</span> ${r.recordType}</div>
-                  <div><span class="label">IPFS:</span> <span class="value">${r.ipfsHash}</span></div>
-                  <div><span class="label">Timestamp:</span> ${timestamp}</div>
-                  <div style="margin-top: 10px;">
-                    <button onclick="viewDecryptedRecord('${r.ipfsHash}', ${i+1})" style="background: #10b981; font-size: 12px; padding: 6px 12px;">🔓 Decrypt & View</button>
-                  </div>
-                </div>
-              `;
-            });
-          }
-          showMessage('success', `✓ Found ${data.records.length} record(s)`);
-        } else {
-          showMessage('error', data.error);
-        }
-      } catch (e) {
-        showMessage('error', e.message);
-      }
-    }
-
-    async function grantAccess() {
-      if (!currentAccount) {
-        showMessage('error', 'Setup account first');
-        return;
-      }
-      const providerAddress = document.getElementById('providerAddress').value;
-      const durationDays = document.getElementById('duration').value;
-      if (!providerAddress || !durationDays) {
-        showMessage('error', 'Fill all fields');
-        return;
-      }
-      try {
-        showMessage('info', 'Granting access...');
-        const res = await fetch(`${API_URL}/access/grant`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ privateKey: currentAccount, providerAddress, durationDays: parseInt(durationDays) })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showMessage('success', `✓ Access granted for ${durationDays} days!`);
-        } else {
-          showMessage('error', data.error);
-        }
-      } catch (e) {
-        showMessage('error', e.message);
-      }
-    }
-
-    async function revokeAccess() {
-      if (!currentAccount) {
-        showMessage('error', 'Setup account first');
-        return;
-      }
-      const providerAddress = document.getElementById('revokeProviderAddress').value;
-      if (!providerAddress) {
-        showMessage('error', 'Enter provider address');
-        return;
-      }
-      try {
-        showMessage('info', 'Revoking access...');
-        const res = await fetch(`${API_URL}/access/revoke`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ privateKey: currentAccount, providerAddress })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showMessage('success', `✓ Access revoked!`);
-        } else {
-          showMessage('error', data.error);
-        }
-      } catch (e) {
-        showMessage('error', e.message);
-      }
-    }
-
-    async function viewDecryptedRecord(ipfsHash, recordNum) {
-      if (!currentAccount) {
-        showMessage('error', 'Setup account first');
-        return;
-      }
-      try {
-        showMessage('info', `Decrypting record ${recordNum}...`);
-        const res = await fetch(`${API_URL}/ipfs/${ipfsHash}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ privateKey: currentAccount })
-        });
-        const data = await res.json();
-        if (data.success) {
-          const content = JSON.stringify(data.content, null, 2);
-          const decryptMsg = data.encrypted ? '🔓 Successfully decrypted (AES-256-GCM)' : 'Retrieved (unencrypted)';
-          showMessage('success', `${decryptMsg}\n\n${content}`);
-          // Also show in a modal or expandable view
-          alert(`Record ${recordNum} Content:\n\n${content}`);
-        } else {
-          showMessage('error', data.error);
-        }
-      } catch (e) {
-        showMessage('error', 'Decryption failed: ' + e.message);
-      }
-    }
-
-    function showMessage(type, msg) {
-      const messagesDiv = document.getElementById('messages');
-      const div = document.createElement('div');
-      div.className = type;
-      div.textContent = msg;
-      messagesDiv.innerHTML = '';
-      messagesDiv.appendChild(div);
-      setTimeout(() => div.remove(), 5000);
-    }
-
-    function updateStatus() {
-      const statusDiv = document.getElementById('status');
-      if (currentAccount) {
-        statusDiv.textContent = `✓ Connected: ${currentAccount.slice(0, 10)}...`;
-        statusDiv.style.background = 'rgba(16, 185, 129, 0.3)';
-      }
-    }
-
-    // Check backend health on load
-    window.addEventListener('load', async () => {
-      try {
-        const res = await fetch(`${API_URL}/health`);
-        const data = await res.json();
-        document.getElementById('status').textContent = '✓ API Ready';
-        document.getElementById('status').style.background = 'rgba(16, 185, 129, 0.3)';
-      } catch (e) {
-        showMessage('error', 'Backend not running on port 5000');
-      }
+        const addr = deriveAddressFromKey(keyInput.value);
+        const chip = document.getElementById('addr-chip');
+        document.getElementById('addr-chip-text').textContent = truncateAddress(addr);
+        chip.style.display = 'flex';
+      } catch { document.getElementById('addr-chip').style.display = 'none'; }
     });
-  </script>
+  }
+  apiHealth();
+  render();
+});
+
+setInterval(apiHealth, 30000);
+</script>
+
 </body>
 </html>
