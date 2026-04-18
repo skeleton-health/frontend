@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skeleton POC - Patient Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 10px; }
+    .status {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: inline-block;
+    }
+    .content {
+      padding: 30px;
+    }
+    .section {
+      margin-bottom: 30px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .section h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: monospace;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .success {
+      background: #10b981;
+      padding: 15px;
+      border-radius: 6px;
+      color: white;
+      margin-bottom: 15px;
+      border-left: 4px solid #059669;
+    }
+    .error {
+      background: #ef4444;
+      padding: 15px;
+      border-radius: 6px;
+      color: white;
+      margin-bottom: 15px;
+      border-left: 4px solid #dc2626;
+    }
+    .info {
+      background: #3b82f6;
+      padding: 15px;
+      border-radius: 6px;
+      color: white;
+      margin-bottom: 15px;
+      border-left: 4px solid #1d4ed8;
+    }
+    .record-item {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+    }
+    .record-item .label {
+      font-weight: 600;
+      color: #333;
+      margin-right: 10px;
+    }
+    .record-item .value {
+      color: #666;
+      font-family: monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+    .flex { display: flex; gap: 10px; }
+    .flex > * { flex: 1; }
+    .text-small { font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏥 Skeleton Patient Dashboard</h1>
+      <div class="status" id="status">Loading...</div>
+    </div>
+
+    <div class="content">
+      <!-- Messages -->
+      <div id="messages"></div>
+
+      <!-- Section 1: Setup -->
+      <div class="section">
+        <h2>1️⃣ Setup Account</h2>
+        <div class="form-group">
+          <label>Private Key (from Hardhat output)</label>
+          <input type="text" id="privateKey" placeholder="0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80">
+          <div class="text-small">Copy from Hardhat node output (Account #0)</div>
+        </div>
+        <button onclick="setupAccount()">✓ Load Account</button>
+      </div>
+
+      <!-- Section 2: Patient Registration -->
+      <div class="section">
+        <h2>2️⃣ Register Patient</h2>
+        <div class="form-group">
+          <label>DID (Decentralized Identifier)</label>
+          <input type="text" id="did" placeholder="did:polygon:0x123abc">
+        </div>
+        <button onclick="registerPatient()">Register</button>
+      </div>
+
+      <!-- Section 3: Upload Record -->
+      <div class="section">
+        <h2>3️⃣ Upload Health Record</h2>
+        <div class="form-group">
+          <label>Record Type</label>
+          <input type="text" id="recordType" placeholder="lab_result">
+        </div>
+        <div class="form-group">
+          <label>Record Data (JSON)</label>
+          <textarea id="recordData">{"glucose": 120, "timestamp": "2026-04-17"}</textarea>
+        </div>
+        <button onclick="uploadRecord()">Upload Record</button>
+      </div>
+
+      <!-- Section 4: View Records -->
+      <div class="section">
+        <h2>4️⃣ My Records</h2>
+        <button onclick="viewRecords()">📋 Fetch My Records</button>
+        <div id="recordsList" style="margin-top: 15px;"></div>
+      </div>
+
+      <!-- Section 5: Grant Access -->
+      <div class="section">
+        <h2>5️⃣ Grant Access to Provider</h2>
+        <div class="form-group">
+          <label>Provider Address</label>
+          <input type="text" id="providerAddress" placeholder="0x70997970c51812dc3a010c7d01b50e0d17dc79c8">
+          <div class="text-small">Use Account #1 from Hardhat output</div>
+        </div>
+        <div class="form-group">
+          <label>Duration (days)</label>
+          <input type="number" id="duration" value="30">
+        </div>
+        <button onclick="grantAccess()">✓ Grant 30-Day Access</button>
+      </div>
+
+      <!-- Section 6: Revoke Access -->
+      <div class="section">
+        <h2>6️⃣ Revoke Access</h2>
+        <div class="form-group">
+          <label>Provider Address to Revoke</label>
+          <input type="text" id="revokeProviderAddress" placeholder="0x70997970c51812dc3a010c7d01b50e0d17dc79c8">
+        </div>
+        <button onclick="revokeAccess()">❌ Revoke Access</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+    let currentAccount = null;
+
+    async function setupAccount() {
+      const privateKey = document.getElementById('privateKey').value;
+      if (!privateKey) {
+        showMessage('error', 'Enter a private key');
+        return;
+      }
+      try {
+        currentAccount = privateKey;
+        showMessage('success', `✓ Account loaded`);
+        updateStatus();
+      } catch (e) {
+        showMessage('error', e.message);
+      }
+    }
+
+    async function registerPatient() {
+      if (!currentAccount) {
+        showMessage('error', 'Setup account first');
+        return;
+      }
+      const did = document.getElementById('did').value;
+      if (!did) {
+        showMessage('error', 'Enter DID');
+        return;
+      }
+      try {
+        showMessage('info', 'Registering patient...');
+        const publicKey = '0x'; // Placeholder
+        const res = await fetch(`${API_URL}/patient/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ privateKey: currentAccount, did, publicKey })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showMessage('success', `✓ Patient registered! TX: ${data.txHash.slice(0, 10)}...`);
+        } else {
+          showMessage('error', data.error);
+        }
+      } catch (e) {
+        showMessage('error', e.message);
+      }
+    }
+
+    async function uploadRecord() {
+      if (!currentAccount) {
+        showMessage('error', 'Setup account first');
+        return;
+      }
+      const recordType = document.getElementById('recordType').value;
+      const recordData = document.getElementById('recordData').value;
+      if (!recordType || !recordData) {
+        showMessage('error', 'Fill all fields');
+        return;
+      }
+      try {
+        showMessage('info', 'Encrypting and uploading record...');
+        const data = JSON.parse(recordData);
+        // Step 1: Upload to file-based IPFS with encryption
+        const uploadRes = await fetch(`${API_URL}/records/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data, privateKey: currentAccount })
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadData.success) {
+          showMessage('error', uploadData.error);
+          return;
+        }
+        const ipfsHash = uploadData.ipfsHash;
+        // Step 2: Add record to blockchain
+        const addRes = await fetch(`${API_URL}/records/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ privateKey: currentAccount, recordType, ipfsHash })
+        });
+        const addData = await addRes.json();
+        if (addData.success) {
+          const encryptionMsg = uploadData.encrypted ? ' (🔒 AES-256-GCM encrypted)' : '';
+          showMessage('success', `✓ Record uploaded!${encryptionMsg} IPFS: ${ipfsHash.slice(0, 10)}...`);
+        } else {
+          showMessage('error', addData.error);
+        }
+      } catch (e) {
+        showMessage('error', e.message);
+      }
+    }
+
+    async function viewRecords() {
+      if (!currentAccount) {
+        showMessage('error', 'Setup account first');
+        return;
+      }
+      try {
+        showMessage('info', 'Fetching records...');
+        const address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'; // Account #0
+        const res = await fetch(`${API_URL}/records/${address}`);
+        const data = await res.json();
+        if (data.success) {
+          const recordsList = document.getElementById('recordsList');
+          recordsList.innerHTML = '';
+          if (data.records.length === 0) {
+            recordsList.innerHTML = '<p style="color:#999;">No records yet</p>';
+          } else {
+            data.records.forEach((r, i) => {
+              const timestamp = new Date(parseInt(r.timestamp) * 1000).toLocaleString();
+              recordsList.innerHTML += `
+                <div class="record-item">
+                  <div><span class="label">Record ${i+1}:</span> ${r.recordType}</div>
+                  <div><span class="label">IPFS:</span> <span class="value">${r.ipfsHash}</span></div>
+                  <div><span class="label">Timestamp:</span> ${timestamp}</div>
+                  <div style="margin-top: 10px;">
+                    <button onclick="viewDecryptedRecord('${r.ipfsHash}', ${i+1})" style="background: #10b981; font-size: 12px; padding: 6px 12px;">🔓 Decrypt & View</button>
+                  </div>
+                </div>
+              `;
+            });
+          }
+          showMessage('success', `✓ Found ${data.records.length} record(s)`);
+        } else {
+          showMessage('error', data.error);
+        }
+      } catch (e) {
+        showMessage('error', e.message);
+      }
+    }
+
+    async function grantAccess() {
+      if (!currentAccount) {
+        showMessage('error', 'Setup account first');
+        return;
+      }
+      const providerAddress = document.getElementById('providerAddress').value;
+      const durationDays = document.getElementById('duration').value;
+      if (!providerAddress || !durationDays) {
+        showMessage('error', 'Fill all fields');
+        return;
+      }
+      try {
+        showMessage('info', 'Granting access...');
+        const res = await fetch(`${API_URL}/access/grant`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ privateKey: currentAccount, providerAddress, durationDays: parseInt(durationDays) })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showMessage('success', `✓ Access granted for ${durationDays} days!`);
+        } else {
+          showMessage('error', data.error);
+        }
+      } catch (e) {
+        showMessage('error', e.message);
+      }
+    }
+
+    async function revokeAccess() {
+      if (!currentAccount) {
+        showMessage('error', 'Setup account first');
+        return;
+      }
+      const providerAddress = document.getElementById('revokeProviderAddress').value;
+      if (!providerAddress) {
+        showMessage('error', 'Enter provider address');
+        return;
+      }
+      try {
+        showMessage('info', 'Revoking access...');
+        const res = await fetch(`${API_URL}/access/revoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ privateKey: currentAccount, providerAddress })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showMessage('success', `✓ Access revoked!`);
+        } else {
+          showMessage('error', data.error);
+        }
+      } catch (e) {
+        showMessage('error', e.message);
+      }
+    }
+
+    async function viewDecryptedRecord(ipfsHash, recordNum) {
+      if (!currentAccount) {
+        showMessage('error', 'Setup account first');
+        return;
+      }
+      try {
+        showMessage('info', `Decrypting record ${recordNum}...`);
+        const res = await fetch(`${API_URL}/ipfs/${ipfsHash}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ privateKey: currentAccount })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const content = JSON.stringify(data.content, null, 2);
+          const decryptMsg = data.encrypted ? '🔓 Successfully decrypted (AES-256-GCM)' : 'Retrieved (unencrypted)';
+          showMessage('success', `${decryptMsg}\n\n${content}`);
+          // Also show in a modal or expandable view
+          alert(`Record ${recordNum} Content:\n\n${content}`);
+        } else {
+          showMessage('error', data.error);
+        }
+      } catch (e) {
+        showMessage('error', 'Decryption failed: ' + e.message);
+      }
+    }
+
+    function showMessage(type, msg) {
+      const messagesDiv = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = msg;
+      messagesDiv.innerHTML = '';
+      messagesDiv.appendChild(div);
+      setTimeout(() => div.remove(), 5000);
+    }
+
+    function updateStatus() {
+      const statusDiv = document.getElementById('status');
+      if (currentAccount) {
+        statusDiv.textContent = `✓ Connected: ${currentAccount.slice(0, 10)}...`;
+        statusDiv.style.background = 'rgba(16, 185, 129, 0.3)';
+      }
+    }
+
+    // Check backend health on load
+    window.addEventListener('load', async () => {
+      try {
+        const res = await fetch(`${API_URL}/health`);
+        const data = await res.json();
+        document.getElementById('status').textContent = '✓ API Ready';
+        document.getElementById('status').style.background = 'rgba(16, 185, 129, 0.3)';
+      } catch (e) {
+        showMessage('error', 'Backend not running on port 5000');
+      }
+    });
+  </script>
+</body>
+</html>
